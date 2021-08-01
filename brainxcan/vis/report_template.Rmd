@@ -101,21 +101,31 @@ pp + ggtitle(paste0(phenotype_name, ' - ', idp_type))
 
 ```{r load_mr}
 df_mr = load_mr_sum_stats(paste0(input_prefix, '_files/MR_results/'))
-df_mr$mr_pval = gen_mr_sign(df_mr$b, df_mr$pval)
-tmp = df_mr %>% filter(method == 'ACAT meta-analysis') %>% reshape2::dcast(IDP ~ direction, value.var = 'pval')
-xcandf_w_mr = xcandf %>% left_join(tmp, by = 'IDP') 
-xcandf_w_mr = xcandf_w_mr %>% mutate(link = paste0('[MR plot](#', tolower(IDP), ')'))
-xcandf_w_mr$link[ is.na(xcandf_w_mr$`Phenotype -> IDP`) ] = NA
+if(!is.null(df_mr)) {
+  df_mr$mr_pval = gen_mr_sign(df_mr$b, df_mr$pval)
+  tmp = df_mr %>% filter(method == 'ACAT meta-analysis') %>% reshape2::dcast(IDP ~ direction, value.var = 'pval')
+  xcandf_w_mr = xcandf %>% left_join(tmp, by = 'IDP') 
+  xcandf_w_mr = xcandf_w_mr %>% mutate(link = paste0('[MR plot](#', tolower(IDP), ')'))
+  xcandf_w_mr$link[ is.na(xcandf_w_mr$`Phenotype -> IDP`) ] = NA
+}
 ```
 
 The top `r ntop` associations for dMRI are 
-```{r dmri_top_n}
-xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, pval, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(pval < p_thres) %>% filter(modality=="dMRI") %>% arrange(pval) %>% select(-modality) %>% head(ntop) %>% pander
+```{r dmri_top_n, results='asis'}
+if(!is.null(df_mr)) {
+  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, pval, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(pval < p_thres) %>% filter(modality=="dMRI") %>% arrange(pval) %>% select(-modality) %>% head(ntop) %>% pander
+} else {
+  cat('not shown since no significant IDP being identified (pass p-value cutoff).\n\n')
+}
 ```
 
 The top `r ntop` associations for T1 are 
 ```{r t1_top_n, results='asis'}
-xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, pval, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(pval < p_thres) %>% filter(modality == "T1") %>% arrange(pval) %>% select(-modality) %>% head(ntop) %>% pander
+if(!is.null(df_mr)) {
+  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, pval, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(pval < p_thres) %>% filter(modality == "T1") %>% arrange(pval) %>% select(-modality) %>% head(ntop) %>% pander
+} else {
+  cat('not shown since no significant IDP being identified (pass p-value cutoff).\n\n')
+}
 ```
 
 # Visualization of associations in the brain
@@ -136,28 +146,32 @@ for(i in idp_types) {
 # BrainXcan MR Figures
 
 ```{r mr_figures, results='asis'}
-mr_idps = df_mr %>% select(IDP) %>% distinct()
-for(i in mr_idps$IDP) {
-  if(i %in% xcandf$IDP) {
-    # do next chunks
-  } else {
-    next
+if(!is.null(df_mr)) {
+  mr_idps = df_mr %>% select(IDP) %>% distinct()
+  for(i in mr_idps$IDP) {
+    if(i %in% xcandf$IDP) {
+      # do next chunks
+    } else {
+      next
+    }
+    fig_fn = Sys.glob(paste0(input_prefix, '_files/MR_results/', '*', i, '.MR_vis.pdf'))
+    if(length(fig_fn) > 1) {
+      next
+    }
+    info = allxcan_annot %>% filter(IDP == i)
+    msg = i
+    if(nrow(info) == 1) {
+      msg = info$notes
+    }
+    cat('\n\n')
+    cat(paste0('## ', i, ' {#', tolower(i), '}', '\n\n'))
+    cat(msg, '\n\n')
+    fn_png = paste0(tempdir(), stringr::str_replace(basename(fig_fn), '\\.pdf', '\\.png'))
+    pdftools::pdf_convert(fig_fn, filenames = fn_png, verbose = F, dpi = 200)
+    cat(paste0('![](', fn_png, ')'))
+    # system(paste0('rm ', fn_png))
   }
-  fig_fn = Sys.glob(paste0(input_prefix, '_files/MR_results/', '*', i, '.MR_vis.pdf'))
-  if(length(fig_fn) > 1) {
-    next
-  }
-  info = allxcan_annot %>% filter(IDP == i)
-  msg = i
-  if(nrow(info) == 1) {
-    msg = info$notes
-  }
-  cat('\n\n')
-  cat(paste0('## ', i, ' {#', tolower(i), '}', '\n\n'))
-  cat(msg, '\n\n')
-  fn_png = paste0(tempdir(), stringr::str_replace(basename(fig_fn), '\\.pdf', '\\.png'))
-  pdftools::pdf_convert(fig_fn, filenames = fn_png, verbose = F, dpi = 200)
-  cat(paste0('![](', fn_png, ')'))
-  # system(paste0('rm ', fn_png))
+} else {
+  cat('No significant IDP being identified.\n\n')
 }
 ```

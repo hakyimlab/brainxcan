@@ -47,6 +47,9 @@ plot_bxcan_ordered <- function(xcandf, color_map, z_thres)
 
 load_mr_sum_stats = function(prefix) {
   kk = Sys.glob(paste0(prefix, '*.MR_sumstats.tsv'))
+  if(length(kk) == 0) {
+    return(NULL)
+  }
   df_mr = list()
   for(k in kk) {
     mm = stringr::str_match(basename(k), '(t1_|dmri_)([A-Z-0-9a-z]+).MR_sumstats.tsv')[, 3]
