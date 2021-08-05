@@ -82,7 +82,7 @@ key_val_pairs_to_yaml = function(str) {
 load_pheno_gwas = function(filename, gwas_cols_key_val_pairs) {
   # col_yaml = yaml::read_yaml(yaml_path)
   col_yaml = key_val_pairs_to_yaml(gwas_cols_key_val_pairs) 
-  df_gwas = data.table::fread(cmd = paste0('zcat ', filename), sep = '\t', data.table = F)
+  df_gwas = data.table::fread(cmd = paste0('zcat < ', filename), sep = '\t', data.table = F)
   col_yaml_cleaned = list()
   for(col in names(col_yaml)) {
     if(col %in% colnames(df_gwas)) {
