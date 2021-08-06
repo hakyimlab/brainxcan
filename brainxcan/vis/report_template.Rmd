@@ -88,7 +88,6 @@ Among `r n_pred_idps` IDPs (`r sum(xcandf$modality=="T1")` T1 and `r sum(xcandf$
 idp_type = 'T1'
 pp = plot_bxcan_ordered(xcandf %>% filter(modality == idp_type), color_map, z_thres)
 pp + ggtitle(paste0(phenotype_name, ' - ', idp_type))
-# ggsave(paste0(out_prefix, '.brainxcan_zscore.', idp_type, '.png'), pp, height = 6, width = 8)
 ```
 
 
@@ -96,7 +95,6 @@ pp + ggtitle(paste0(phenotype_name, ' - ', idp_type))
 idp_type = 'dMRI'
 pp = plot_bxcan_ordered(xcandf %>% filter(modality == idp_type), color_map, z_thres)
 pp + ggtitle(paste0(phenotype_name, ' - ', idp_type))
-# ggsave(paste0(out_prefix, '.brainxcan_zscore.', idp_type, '.png'), pp, height = 6, width = 8)
 ```
 
 ```{r load_mr}
@@ -136,10 +134,9 @@ for(i in idp_types) {
   cat('\n\n')
   cat(paste0('## ', i, '\n\n'))
   fn = paste0(input_prefix, '.vis.', i, '.pdf')
-  fn_png = paste0(tempdir(), stringr::str_replace(basename(fn), '\\.pdf', '\\.png'))
-  pdftools::pdf_convert(fn, filenames = fn_png, verbose = F, dpi = 300)
-  cat(paste0('![](', fn_png, ')'))
-  # system(paste0('rm ', fn_png))
+  fn_jpeg = paste0(tempdir(), stringr::str_replace(basename(fn), '\\.pdf', '\\.jpeg'))
+  pdftools::pdf_convert(fn, filenames = fn_jpeg, verbose = F, dpi = 300, format = "jpeg")
+  cat(paste0('![](', fn_jpeg, ')'))
 }
 ```
 
@@ -166,10 +163,9 @@ if(!is.null(df_mr)) {
     cat('\n\n')
     cat(paste0('## ', i, ' {#', tolower(i), '}', '\n\n'))
     cat(msg, '\n\n')
-    fn_png = paste0(tempdir(), stringr::str_replace(basename(fig_fn), '\\.pdf', '\\.png'))
-    pdftools::pdf_convert(fig_fn, filenames = fn_png, verbose = F, dpi = 200)
-    cat(paste0('![](', fn_png, ')'))
-    # system(paste0('rm ', fn_png))
+    fn_jpeg = paste0(tempdir(), stringr::str_replace(basename(fig_fn), '\\.pdf', '\\.jpeg'))
+    pdftools::pdf_convert(fig_fn, filenames = fn_jpeg, verbose = F, dpi = 200, format = "jpeg")
+    cat(paste0('![](', fn_jpeg, ')'))
   }
 } else {
   cat('No significant IDP being identified.\n\n')
