@@ -44,7 +44,7 @@ rule sbxcan_t1:
     log:
         '{outdir}/{prefix}_files/logs/sbrainxcan_t1.log'
     shell:
-        'export PYTHONPATH={config[brainxcan_path]}:$PYTHONPATH; \
+        'export PYTHONPATH={config[brainxcan_path]}:${{PYTHONPATH:-}}; \
          {config[python_exe]} \
            {config[brainxcan_path]}/brainxcan/sbxcan/run_sbrainxcan.py \
            --genotype_covariance {args_geno_cov} \
@@ -64,7 +64,7 @@ rule sbxcan_dmri:
     log:
         '{outdir}/{prefix}_files/logs/sbrainxcan_dmri.log'
     shell:
-        'export PYTHONPATH={config[brainxcan_path]}:$PYTHONPATH; \
+        'export PYTHONPATH={config[brainxcan_path]}:${{PYTHONPATH:-}}; \
          {config[python_exe]} \
            {config[brainxcan_path]}/brainxcan/sbxcan/run_sbrainxcan.py \
            --genotype_covariance {args_geno_cov} \
