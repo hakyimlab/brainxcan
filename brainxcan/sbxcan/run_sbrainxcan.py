@@ -428,7 +428,7 @@ if __name__ == '__main__':
         need_pos_col = True
     
     logging.info('Loading GWAS.')
-    df_gwas = load_gwas(args.gwas, fill_pos_col=!need_pos_col)
+    df_gwas = load_gwas(args.gwas, fill_pos_col=not need_pos_col)
     # df_gwas columns: 
     # snpid, non_effect_allele, effect_allele, 
     # effect_size, effect_size_se, chr
