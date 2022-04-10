@@ -127,7 +127,7 @@ def _parse_args(args_list, desired_cols=None, no_raise=False):
     for i in args_list[1:]:
         tmp = i.split(':')
         if len(tmp) != 2:
-            raise ValueError('Wrong gwas args list. Need [col]:[name] pairs.')
+            raise ValueError('Wrong args list. Need [col]:[name] pairs.')
         col, name = tmp
         if desired_cols is None:
             desired_cols_tmp.append(col) 
@@ -202,11 +202,14 @@ def get_key_by_val(val, dict_):
             return i
     return None
 
-def load_gwas(gwas_args_list):
+def load_gwas(gwas_args_list, fill_pos_col=False):
     snpid_col = get_snpid_col(gwas_args_list[1:])
     # fn = gwas_args_list[0]
     fn, rename_dict = _parse_args(gwas_args_list, desired_cols=None)
     df = read_table(fn, indiv_col=snpid_col)
+    if fill_pos_col:
+        df['position'] = np.nan
+        gwas_args_list.append('position:position')
     k_effect_size = get_key_by_val('effect_size', rename_dict)
     k_zscore = get_key_by_val('zscore', rename_dict)
     if k_effect_size is not None and k_effect_size in df.columns:
@@ -352,7 +355,9 @@ if __name__ == '__main__':
         If there is no effect_size avaliable, it could 
         impute effect_size from zscore, allele_frequency, 
         sample_size.
-        The format is: snpid:rsid_col, ..., chr:chr, position:position
+        The format is: snpid:rsid_col, ..., chr:chr, position:position.
+        Note that position column is NOT required if --ldblock_perm is not 
+        specified.
     ''')
     parser.add_argument('--idp_weight', nargs='+', help='''
         The IDP weight table is in parquet format.
@@ -418,8 +423,12 @@ if __name__ == '__main__':
     # from util.susie_wrapper import run_susie_wrapper
     from brainxcan.sbxcan.util.misc import z2p
     
+    need_pos_col = False
+    if args.ldblock_perm is not None:
+        need_pos_col = True
+    
     logging.info('Loading GWAS.')
-    df_gwas = load_gwas(args.gwas)
+    df_gwas = load_gwas(args.gwas, fill_pos_col=!need_pos_col)
     # df_gwas columns: 
     # snpid, non_effect_allele, effect_allele, 
     # effect_size, effect_size_se, chr
