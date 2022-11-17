@@ -13,7 +13,7 @@ gen_five_scales = function(sig_cutoff, nominal_cutoff) {
   return(res)
 }
 
-zscore2category = function(zval, sig_cutoff = 4, nominal_cutoff = 2, colors = c('#D55E00', '#F7DFCC', '#FFFFFF', '#CCE3F0', '#0072B2')) {
+zscore2category = function(zval, sig_cutoff = 4, nominal_cutoff = 2, colors = c('#cb0f0f', '#ff844c', '#FFFFFF', '#7fd1ff', '#0043ad')) {
   sig_cutoff = abs(sig_cutoff)
   nominal_cutoff = abs(nominal_cutoff)
   scales = gen_five_scales(sig_cutoff, nominal_cutoff)

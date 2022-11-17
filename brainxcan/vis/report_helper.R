@@ -45,6 +45,35 @@ plot_bxcan_ordered <- function(xcandf, color_map, z_thres)
   pp
 }
 
+plot_bxcan_ordered_heatmap <- function(xcandf0, color_map, z_thres) {
+  shape_map = gen_shape_map()
+  tmp = xcandf0 %>% mutate(lr = as.character(side))
+  tmp$lr[is.na(tmp$lr)] = 'NA'
+  lr2 <- paste0('-', tmp$lr)
+  lr2[lr2 == '-NA'] <- ''
+  region2 <- tmp$region
+  region2[substr(region2, 1, 2) == 'PC'] <- 'PC'
+  region2 <- paste0(region2, lr2)
+  subtype2 <- tmp$subtype
+  pcs <- subtype2[substr(subtype2, 1, 2) == 'PC'] 
+  pcs <- unlist(lapply(strsplit(pcs, '-'), function(x) x[2]))
+  subtype2[substr(subtype2, 1, 2) == 'PC'] <- pcs
+  tmp = tmp %>%
+    mutate(region2 = region2, subtype2 = subtype2) %>%
+    mutate(kk = reorder(region2, zscore ^ 2, FUN = max))
+  tmp2 <- tmp %>% filter(abs(zscore) > z_thres)
+  pp = tmp %>%  
+    ggplot() + 
+    geom_tile(aes(x = kk, y = subtype2, fill = zscore)) +
+    geom_text(data = tmp2, aes(x = kk, y = subtype2, label = "*"), color = 'white', size = 4) + 
+    coord_flip() +
+    ylab('BrainXcan z-score') + 
+    theme(axis.title.y = element_blank()) + 
+    theme(legend.title = element_blank()) +
+    scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = 0, na.value = 'gray')
+  pp
+}
+
 load_mr_sum_stats = function(prefix) {
   kk = Sys.glob(paste0(prefix, '*.MR_sumstats.tsv'))
   if(length(kk) == 0) {
