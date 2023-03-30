@@ -42,6 +42,12 @@ if __name__ == '__main__':
     parser.add_argument('--pval_col', default='pval', help='''
         The name of the p-value column to be used.
     ''')
+    parser.add_argument('--correction_factor_emp', type=float, default=1, help='''
+        Correction factor for to be applied to z-score adjustment (emp_null): z_adj = z / sd(z_null) / correction_factor
+    ''')
+    parser.add_argument('--correction_factor_perm', type=float, default=1.1, help='''
+        Correction factor for to be applied to z-score adjustment (perm_null): z_adj = z / sd(z_null) / correction_factor
+    ''')
     args = parser.parse_args()
     
     import logging, time, sys, os
@@ -80,8 +86,8 @@ if __name__ == '__main__':
     df['pval_adj_gc'] = z2p(df.z_adj_gc)
     logging.info(f'GC lambda = {lambda_gc}.')
     
-    add_null_to_result(df, df_null, 'emp_null', args.output_prefix)
-    add_null_to_result(df, df_perm, 'perm_null', args.output_prefix)
+    add_null_to_result(df, df_null, 'emp_null', args.output_prefix, args.correction_factor_emp)
+    add_null_to_result(df, df_perm, 'perm_null', args.output_prefix, args.correction_factor_perm)
  
     logging.info('Loading the IDP meta file.')
     meta = pd.read_csv(args.idp_meta_file)

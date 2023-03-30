@@ -320,3 +320,7 @@ def fill_pval_col(config):
             pass
         else:
             config['pval_col'] = 'pval_adj_perm_null' 
+
+def fill_correction_factor(config):
+    sh._try_fill_config(config, 'correction_factor_emp', default_params.CORRECTION_FACTOR_EMP)
+    sh._try_fill_config(config, 'correction_factor_perm', default_params.CORRECTION_FACTOR_PERM)

@@ -61,12 +61,14 @@ plink_exe: 'plink'
 bxcan_empirical_z: False
 bxcan_empirical_z_seed: 1
 bxcan_empirical_z_nrepeat: 1000
+correction_factor_emp: 1
 
 # generate empirical zscores with LD block-based permutation in BrainXcan
 ## path to the BED file (TAB-delimited base0 with header chr, start, stop)
 bxcan_ldblock_perm: null 
 bxcan_ldblock_perm_seed: 1
 bxcan_ldblock_perm_nrepeat: 10
+correction_factor_perm: 1.1
 
 # -------------------------- ABOUT DEPENDENT DATA --------------------------- #
 # specify dependent data separately

@@ -100,6 +100,8 @@ rule sbxcan_merge:
            --t1 {input[1]} \
            --idp_meta_file {bxcan_idp_meta} \
            --pval_col {config[pval_col]} \
+           --correction_factor_emp {config[correction_factor_emp]} \
+           --correction_factor_perm {config[correction_factor_perm]} \
            --output_prefix {params[0]} > {log} 2>&1'
 
 checkpoint sbxcan_signif:

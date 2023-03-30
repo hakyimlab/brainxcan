@@ -35,6 +35,8 @@ IDP_WEIGHTS_PATTERN = '{datadir}/idp_weights/{model_type}/{idp_type}.{idp_modali
 IDP_GWAS_PATTERN = '{datadir}/idp_gwas/{idp_type}.{idp_modality}.chr{chr_num}/{idp_code}.parquet'
 IDP_GWAS_SNP_PATTERN = '{datadir}/idp_gwas/snp_bim/chr{chr_num}.bim'
 MR_LD_PANEL_PATTERN = '{datadir}/mr/ieugwasr/{gwas_pop}'
+CORRECTION_FACTOR_EMP = 1
+CORRECTION_FACTOR_PERM = 1.1
 
 BXCAN_SIGNIF = OrderedDict([
     ('signif_pval', 1e-5),
