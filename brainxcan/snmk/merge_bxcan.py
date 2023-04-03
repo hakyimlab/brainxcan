@@ -11,14 +11,15 @@ def append_null_to_df(df, fn, null_name):
         df_null = pd.read_csv(null_fn)
         print(f'Loading {null_name} from {fn}: num. of records = {df_null.shape[0]}')
         df.append(df_null)
-def add_null_to_result(df_result, df_null, null_name, output_prefix):
+def add_null_to_result(df_result, df_null, null_name, output_prefix,
+    correction_factor = 1.0):
     if len(df_null) > 0:
         df_null = pd.concat(df_null, axis=0).reset_index(drop=True)
         print(f'Forming adjusted z-score using {null_name} as null (n = {df_null.shape[0]})')
         df_null.to_csv(output_prefix + f'.{null_name}.csv', index=False)
         varz_null = np.var(df_null.value)
         zcol, pcol = f'z_adj_{null_name}', f'pval_adj_{null_name}'
-        df_result[zcol] = df_result.z_brainxcan / np.sqrt(varz_null)
+        df_result[zcol] = df_result.z_brainxcan / np.sqrt(varz_null) / correction_factor
         df_result[pcol] = z2p(df_result[zcol])  
 
 if __name__ == '__main__':
