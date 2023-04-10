@@ -20,7 +20,7 @@ gen_shape_map = function() {
   )
 }
 
-plot_bxcan_ordered <- function(xcandf, color_map, z_thres)
+plot_bxcan_ordered <- function(xcandf, color_map, z_thres = NULL)
 {
   shape_map = gen_shape_map()
   tmp = xcandf %>% mutate(lr = as.character(side))
@@ -30,9 +30,11 @@ plot_bxcan_ordered <- function(xcandf, color_map, z_thres)
     mutate(kk = reorder(region, zscore ^ 2, FUN = max))
   tmp2 = tmp %>%
     group_by(kk) %>% summarize(zmax = max(zscore), zmin = min(zscore)) %>% ungroup()
-  pp = tmp %>%  
-    ggplot() + 
-    geom_hline(yintercept = c(-z_thres, z_thres), col = 'gray') + 
+  pp = tmp %>%  ggplot()  
+  if(!is.null(z_thres)) {
+    pp = pp + geom_hline(yintercept = c(-z_thres, z_thres), col = 'gray')
+  }
+  pp = pp + 
     geom_segment(data = tmp2, aes(x = kk, xend = kk, y = zmin, yend = zmax), color = 'black', size = 0.1) + 
     # geom_text(aes(x = kk, y = zscore, color = subtype, label = code), family = "Arial Unicode MS") + 
     geom_point(aes(x = kk, y = zscore, color = subtype, shape = code), size = 4, alpha = 0.7) +
@@ -45,7 +47,7 @@ plot_bxcan_ordered <- function(xcandf, color_map, z_thres)
   pp
 }
 
-plot_bxcan_ordered_heatmap <- function(xcandf0, color_map, z_thres) {
+plot_bxcan_ordered_heatmap <- function(xcandf0, color_map, z_thres = NULL) {
   shape_map = gen_shape_map()
   tmp = xcandf0 %>% mutate(lr = as.character(side))
   tmp$lr[is.na(tmp$lr)] = 'NA'
@@ -61,6 +63,9 @@ plot_bxcan_ordered_heatmap <- function(xcandf0, color_map, z_thres) {
   tmp = tmp %>%
     mutate(region2 = region2, subtype2 = subtype2) %>%
     mutate(kk = reorder(region2, zscore ^ 2, FUN = max))
+  if(is.null(z_thres)) {
+    z_thres <- Inf
+  }
   tmp2 <- tmp %>% filter(abs(zscore) > z_thres)
   pp = tmp %>%  
     ggplot() + 
@@ -105,4 +110,13 @@ gen_mr_sign = function(direction, pval) {
     df_code, by = 'direction'
   )
   paste0(signif(kk$pval, digits = 3), ' (', kk$sign, ')')
+}
+
+get_qvalue <- function(pval) {
+  maxp <- max(pval)
+  lambda.seq <- seq(0.05, 0.95, 0.05)
+  if(maxp < 0.95) {
+    lambda.seq <- lambda.seq[lambda.seq <= maxp]
+  }
+  return(qvalue::qvalue(pval, lambda = lambda.seq)$qvalues)
 }
