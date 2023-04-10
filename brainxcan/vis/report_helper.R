@@ -65,12 +65,15 @@ plot_bxcan_ordered_heatmap <- function(xcandf0, color_map, z_thres) {
   pp = tmp %>%  
     ggplot() + 
     geom_tile(aes(x = kk, y = subtype2, fill = zscore)) +
-    geom_text(data = tmp2, aes(x = kk, y = subtype2, label = "*"), color = 'white', size = 4) + 
     coord_flip() +
     ylab('BrainXcan z-score') + 
     theme(axis.title.y = element_blank()) + 
     theme(legend.title = element_blank()) +
     scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = 0, na.value = 'gray')
+  if (nrow(tmp2) > 0) {
+    pp = pp + 
+      geom_text(data = tmp2, aes(x = kk, y = subtype2, label = "*"), color = 'white', size = 4)
+  }
   pp
 }
 
