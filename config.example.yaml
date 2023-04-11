@@ -46,7 +46,7 @@ idp_type: 'residual'
 spearman_cutoff: 0.1 
 
 # parameters to define signif BrainXcan results for MR
-signif_pval: 1e-5
+signif_pval: 5e-2
 signif_max_idps: 10
 
 # parameters used in defining instrument in MR

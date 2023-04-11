@@ -106,7 +106,7 @@ z_thres = abs(qnorm(p_thres / 2))
 n_pred_idps = length(unique(xcandf$IDP))
 xcandf$qvalue = get_qvalue(xcandf[[bxcan_pval_col]])
 if(any(xcandf$qvalue < qval_cutoff) {
-  p_thres = min(xcandf[[bxcan_pval_col]][xcandf$qvalue < qval_cutoff])
+  p_thres = max(xcandf[[bxcan_pval_col]][xcandf$qvalue < qval_cutoff])
   z_thres = abs(qnorm(p_thres / 2))
 } else {
   p_thres = 0

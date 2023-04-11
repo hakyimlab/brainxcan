@@ -39,7 +39,7 @@ CORRECTION_FACTOR_EMP = 1
 CORRECTION_FACTOR_PERM = 1.1
 
 BXCAN_SIGNIF = OrderedDict([
-    ('signif_pval', 1e-5),
+    ('signif_pval', 5e-2),
     ('signif_max_idps', 10)
 ])
 
