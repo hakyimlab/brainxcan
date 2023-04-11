@@ -105,7 +105,7 @@ z_thres = abs(qnorm(p_thres / 2))
 ## calculate qvalue
 n_pred_idps = length(unique(xcandf$IDP))
 xcandf$qvalue = get_qvalue(xcandf[[bxcan_pval_col]])
-if(any(xcandf$qvalue < qval_cutoff) {
+if(any(xcandf$qvalue < qval_cutoff)) {
   p_thres = max(xcandf[[bxcan_pval_col]][xcandf$qvalue < qval_cutoff])
   z_thres = abs(qnorm(p_thres / 2))
 } else {
@@ -174,7 +174,7 @@ if(!is.null(df_mr)) {
 The top `r ntop` associations for dMRI are 
 ```{r dmri_top_n, results='asis'}
 if(!is.null(df_mr)) {
-  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, qvalue), `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(qvalue < qval_cutoff) %>% filter(modality == "dMRI") %>% arrange(qvalue) %>% select(-modality) %>% head(ntop) %>% pander
+  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, qvalue, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(qvalue < qval_cutoff) %>% filter(modality == "dMRI") %>% arrange(qvalue) %>% select(-modality) %>% head(ntop) %>% pander
 } else {
   cat('not shown since no significant IDP being identified (pass p-value cutoff).\n\n')
 }
@@ -183,7 +183,7 @@ if(!is.null(df_mr)) {
 The top `r ntop` associations for T1 are 
 ```{r t1_top_n, results='asis'}
 if(!is.null(df_mr)) {
-  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, qvalue), `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(qvalue < qval_cutoff) %>% filter(modality == "T1") %>% arrange(qvalue) %>% select(-modality) %>% head(ntop) %>% pander
+  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, qvalue, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(qvalue < qval_cutoff) %>% filter(modality == "T1") %>% arrange(qvalue) %>% select(-modality) %>% head(ntop) %>% pander
 } else {
   cat('not shown since no significant IDP being identified (pass p-value cutoff).\n\n')
 }
