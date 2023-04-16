@@ -13,6 +13,7 @@ snpid: 'column name of GWAS SNP RSID'
 effect_allele: 'column name of GWAS effect allele'
 non_effect_allele: 'column name of GWAS non-effect allele'
 chr: 'column name of chromosome'
+position: 'column name of position'  # required if using LD block permutation
 
 # option 1 (high priority)
 # Note: we assume effect is centered around zero, so use log(OR) for case control study
