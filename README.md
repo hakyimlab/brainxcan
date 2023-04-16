@@ -2,15 +2,12 @@
 
 S-BrainXcan takes GWAS as input and return the association between GWAS phenotype and a list of brain image-derived phenotypes.
 
-BrainXcan manuscript [link](https://www.medrxiv.org/content/10.1101/2021.06.01.21258159v1).
+* BrainXcan manuscript is at [link](https://www.medrxiv.org/content/10.1101/2021.06.01.21258159v2)
+* Software documentation is at [link](https://liangyy.github.io/brainxcan-docs/docs/index.html)
+* BrainXcan database is downloadable from Zenodo at [link](http://doi.org/10.5281/zenodo.4895174)
+* Analysis scripts is at [link](https://github.com/liangyy/ukb_idp_genetic_arch)
 
-Software documentation (Quick start) [link](https://liangyy.github.io/brainxcan-docs/docs/index.html).
-
-BrainXcan database [link](http://doi.org/10.5281/zenodo.4895174).
-
-Analysis scripts [link](https://github.com/liangyy/ukb_idp_genetic_arch).
-
-**[https://github.com/liangyy/brainxcan](https://github.com/liangyy/brainxcan) is deprecated.** Please go to [https://github.com/hakyimlab/brainxcan](https://github.com/hakyimlab/brainxcan) for the latest BrainXcan software.
+**IMPORTANT NOTE**: [https://github.com/liangyy/brainxcan](https://github.com/liangyy/brainxcan) is **DEPRECATED**. Please go to [https://github.com/hakyimlab/brainxcan](https://github.com/hakyimlab/brainxcan) for the latest BrainXcan software.
 
 # Installation notes
 
@@ -62,8 +59,7 @@ $ conda activate r_36
 > devtools::install_github("jdstorey/qvalue")
 ```
 
+# Mix-BrainXcan
 
-
-
-
-
+Mix-BrainXcan is implemented in standalone R scripts independent of the S-BrainXcan pipeline. 
+Mix-BrainXcan code is at [https://github.com/hakyimlab/brainxcan/tree/main/brainxcan/mix_brainxcan] and please take a look at `example.R` for an illustrative example.
