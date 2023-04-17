@@ -3,7 +3,7 @@
 S-BrainXcan takes GWAS as input and return the association between GWAS phenotype and a list of brain image-derived phenotypes.
 
 * BrainXcan manuscript is at [link](https://www.medrxiv.org/content/10.1101/2021.06.01.21258159v2)
-* Software documentation is at [link](https://liangyy.github.io/brainxcan-docs/docs/index.html)
+* Software documentation is at [link](https://hakyimlab.github.io/brainxcan-docs/docs/index.html)
 * BrainXcan database is downloadable from Zenodo at [link](http://doi.org/10.5281/zenodo.4895174)
 * Analysis scripts is at [link](https://github.com/liangyy/ukb_idp_genetic_arch)
 
