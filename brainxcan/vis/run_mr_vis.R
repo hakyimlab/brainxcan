@@ -78,12 +78,17 @@ acat_res = do.call(rbind, acat_res)
 df_res = rbind(df_res, acat_res)
 
 # add heterogeneity test
-df_het = rbind(
-  mr_res$idp2pheno$heterogeneity %>% filter(method %in% mr_methods) %>% mutate(direction = 'IDP -> Phenotype'),
-  mr_res$pheno2idp$heterogeneity %>% filter(method %in% mr_methods) %>% mutate(direction = 'Phenotype -> IDP') 
-) %>% select(direction, method, Q, Q_df, Q_pval)
-df_res = left_join(df_res, df_het, by = c('method', 'direction'))
-
+df_het = list()
+if(!is.null(mr_res$idp2pheno$heterogeneity)) {
+  df_het[[length(df_het) + 1]] <- mr_res$idp2pheno$heterogeneity %>% filter(method %in% mr_methods) %>% mutate(direction = 'IDP -> Phenotype')
+}
+if(!is.null(mr_res$pheno2idp$heterogeneity)) {
+  df_het[[length(df_het) + 1]] <- mr_res$pheno2idp$heterogeneity %>% filter(method %in% mr_methods) %>% mutate(direction = 'Phenotype -> IDP')
+}
+if(length(df_het) > 0) {
+  df_het = do.call(rbind, df_het) %>% select(direction, method, Q, Q_df, Q_pval)
+  df_res = left_join(df_res, df_het, by = c('method', 'direction'))
+}
 
 write.table(df_res, opt$output_table, sep = '\t', col = T, row = F, quo = F)
 
