@@ -79,10 +79,10 @@ df_res = rbind(df_res, acat_res)
 
 # add heterogeneity test
 df_het = list()
-if(!is.null(mr_res$idp2pheno$heterogeneity)) {
+if(nrow(mr_res$idp2pheno$heterogeneity) > 0) {
   df_het[[length(df_het) + 1]] <- mr_res$idp2pheno$heterogeneity %>% filter(method %in% mr_methods) %>% mutate(direction = 'IDP -> Phenotype')
 }
-if(!is.null(mr_res$pheno2idp$heterogeneity)) {
+if(nrow(mr_res$pheno2idp$heterogeneity) > 0) {
   df_het[[length(df_het) + 1]] <- mr_res$pheno2idp$heterogeneity %>% filter(method %in% mr_methods) %>% mutate(direction = 'Phenotype -> IDP')
 }
 if(length(df_het) > 0) {
