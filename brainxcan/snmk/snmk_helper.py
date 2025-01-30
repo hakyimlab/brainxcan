@@ -71,12 +71,18 @@ def fill_gwas_col_meta(config):
 
 def fill_sbxcan_signif_criteria(config):
     sh._fill_config_w_default_if_needed(config, default_params.BXCAN_SIGNIF)
+    sh._try_fill_config(config, 'fdr_cutoff', default_params.FDR_CUTOFF)
     config['signif_pval'] = float(config['signif_pval'])
     config['signif_max_idps'] = int(config['signif_max_idps'])
     if config['signif_pval'] > 1 or config['signif_pval'] <= 0:
         raise ValueError('P-value cutoff should be in (0, 1].')
     if config['signif_max_idps'] < 0:
         raise ValueError('Cannot be negative.')
+    # take a more liberal pval cutoff if fdr is liberal
+    # use total idp = 500 as a proxy
+    signif_pval_from_qval = config['fdr_cutoff'] / 500 * config['signif_max_idps']
+    if signif_pval_from_qval > config['signif_pval']:
+        config['signif_pval'] = signif_pval_from_qval
     arg = '--pval {} --max_idps {}'.format(
         config['signif_pval'], config['signif_max_idps']
     )
@@ -264,13 +270,14 @@ def fill_bxcan_region_vis(config):
 def fill_bxcan_null(config):
     fill_empz(config)
     fill_permz(config)
+    fill_vcz(config)
     if config['bxcan_ldblock_perm'] is not None and config['bxcan_empirical_z']:
         print('WARNING: both empirical z-score and LD block-based z-score calculation in BrainXcan are used. Your random seed could be over-written!')
 
 def fill_bxcan_null_args(config):
     empz = fill_bxcan_empz_args(config)
     permz = fill_bxcan_permz_args(config)
-    return f'{empz} {permz}', permz
+    return f'{empz} {permz}', f'{empz} {permz}'
 
 def fill_empz(config):
     sh._try_fill_config(config, 'bxcan_empirical_z', default_params.BXCAN_EMPIRICAL_Z)
@@ -287,6 +294,15 @@ def fill_permz(config):
     if config['model_type'] is 'elastic_net' and config['bxcan_ldblock_perm'] is not None:
         print('WARNING: since model_type = elastic_net, we disable LD block based permutation calculation in BrainXcan. Shut down this check by setting bxcan_ldblock_perm_elastic_net=true')
         config['bxcan_ldblock_perm'] = None
+
+
+def fill_vcz(config):
+    sh._try_fill_config(config, 'bxcan_vc_phi', default_params.BXCAN_VC_PHI)
+    sh._try_fill_config(config, 'bxcan_vc_z', default_params.BXCAN_VC_Z)
+    sh._try_fill_config(config, 'pheno_h2', default_params.PHENO_H2)
+    sh._try_fill_config(config, 'gwas_n', default_params.GWAS_N)
+    if config['model_type'] is 'elastic_net' and config['bxcan_vc_z'] is True:
+        print('WARNING: Phi is likely to be calculated for ridge models only so please use with cautions as elastic net models are used here')
 
 def fill_bxcan_empz_args(config):
     if config['bxcan_empirical_z'] is False:
@@ -308,18 +324,31 @@ def fill_bxcan_permz_args(config):
             '--ldblock_perm_nrepeat {}'.format(config['bxcan_ldblock_perm_nrepeat'])])
     return res
 
-def fill_pval_col(config):
-    if config['bxcan_empirical_z'] is False and config['bxcan_ldblock_perm'] is None:
-        config['pval_col'] = 'pval'
-    elif config['bxcan_ldblock_perm'] is not None and config['bxcan_empirical_z'] is False:
-        config['pval_col'] = 'pval_adj_perm_null'
-    elif config['bxcan_ldblock_perm'] is None and config['bxcan_empirical_z'] is not False:
-        config['pval_col'] = 'pval_adj_emp_null'
+def fill_merge_bxcan_vcz_args(config):
+    if config['bxcan_vc_z'] is False:
+        res = ''
     else:
-        if 'pval_col' in config and 'pval_col' in ['pval', 'pval_adj_emp_null', 'pval_adj_emp_null']:
-            pass
+        res = ' '.join([
+            '--vc_phi {}'.format(config['bxcan_vc_phi']), 
+            '--pheno_h2 {}'.format(config['pheno_h2']), 
+            '--gwas_n {}'.format(config['gwas_n'])])
+    return res
+            
+def fill_pval_col(config):
+    if config['bxcan_vc_z']:
+        config['pval_col'] = 'pval_adj_vc'
+    else:
+        if config['bxcan_empirical_z'] is False and config['bxcan_ldblock_perm'] is None:
+            config['pval_col'] = 'pval'
+        elif config['bxcan_ldblock_perm'] is not None and config['bxcan_empirical_z'] is False:
+            config['pval_col'] = 'pval_adj_perm_null'
+        elif config['bxcan_ldblock_perm'] is None and config['bxcan_empirical_z'] is not False:
+            config['pval_col'] = 'pval_adj_emp_null'
         else:
-            config['pval_col'] = 'pval_adj_perm_null' 
+            if 'pval_col' in config and config['pval_col'] in ['pval', 'pval_adj_emp_null', 'pval_adj_emp_null']:
+                pass
+            else:
+                config['pval_col'] = 'pval_adj_perm_null' 
 
 def fill_correction_factor(config):
     sh._try_fill_config(config, 'correction_factor_emp', default_params.CORRECTION_FACTOR_EMP)

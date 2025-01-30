@@ -271,6 +271,11 @@ def genomic_control(zscore):
     chisq_adj = chisq / lambda_gc
     z_adj = np.sqrt(chisq_adj) * np.sign(zscore)
     return z_adj, lambda_gc    
+    
+def variance_control(zscore, phi, gwas_n, h2):
+    varz = 1 + phi * gwas_n * h2 
+    z_adj = zscore / np.sqrt(varz)
+    return z_adj, varz
 
 def _cleanup_ldblock(df):
     df = df.sort_values(by=['chr', 'start', 'end'])

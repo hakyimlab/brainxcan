@@ -120,3 +120,8 @@ get_qvalue <- function(pval) {
   }
   return(qvalue::qvalue(pval, lambda = lambda.seq)$qvalues)
 }
+
+get_fdr <- function(pval) {
+  fdr <- pval * length(pval) / rank(pval, ties.method = 'max')
+  return(fdr)
+}

@@ -14,7 +14,7 @@ params:
   rlib: NA
   ntop: 10
   bxcan_pval_col: 'pval'
-  qval_cutoff: 0.05
+  fdr_cutoff: 0.05
 title: "`r paste0('BrainXcan results for ', params$phenotype_name)`"
 ---
 
@@ -38,16 +38,18 @@ color_code_yaml = params$color_code_yaml
 phenotype_name = params$phenotype_name
 ntop = params$ntop
 bxcan_pval_col = params$bxcan_pval_col
-qval_cutoff = params$qval_cutoff
+fdr_cutoff = params$fdr_cutoff
 pval_col_to_name = list(
   pval = 'raw p-values from BrainXcan',
   pval_adj_emp_null = 'adjusted p-values based on simulated weights',
-  pval_adj_perm_null = 'adjusted p-values based on permuted weights'
+  pval_adj_perm_null = 'adjusted p-values based on permuted weights',
+  pval_adj_vc = 'variance control adjusted p-values'
 )
 pval_col_to_zscore_col = list(
   pval = 'z_brainxcan',
   pval_adj_emp_null = 'z_adj_perm_null',
-  pval_adj_perm_null = 'z_adj_perm_null'
+  pval_adj_perm_null = 'z_adj_perm_null',
+  pval_adj_vc = 'z_adj_vc'
 )
 ```
 
@@ -105,8 +107,21 @@ z_thres = abs(qnorm(p_thres / 2))
 ## calculate qvalue
 n_pred_idps = length(unique(xcandf$IDP))
 xcandf$qvalue = get_qvalue(xcandf[[bxcan_pval_col]])
-if(any(xcandf$qvalue < qval_cutoff)) {
-  p_thres = max(xcandf[[bxcan_pval_col]][xcandf$qvalue < qval_cutoff])
+# if(any(xcandf$qvalue < qval_cutoff)) {
+#   p_thres = max(xcandf[[bxcan_pval_col]][xcandf$qvalue < qval_cutoff])
+#   z_thres = abs(qnorm(p_thres / 2))
+# } else {
+#   p_thres = 0
+#   z_thres = NULL
+# }
+
+``` 
+
+
+```{r, fdr}
+xcandf$fdr = get_fdr(xcandf[[bxcan_pval_col]])
+if(any(xcandf$fdr < fdr_cutoff)) {
+  p_thres = max(xcandf[[bxcan_pval_col]][xcandf$fdr < fdr_cutoff])
   z_thres = abs(qnorm(p_thres / 2))
 } else {
   p_thres = 0
@@ -124,7 +139,7 @@ xcandf %>% count(subtype) %>% pander::pander()
 
 The p-value being used is `r message(pval_col_to_name[[bxcan_pval_col]])`.
 
-Among `r n_pred_idps` IDPs (`r sum(xcandf$modality=="T1")` T1 and `r sum(xcandf$modality=="dMRI")` diffusion MRI, including the subtype-specific PCs), `r sum(xcandf$qvalue < qval_cutoff)` were significantly associated with `r phenotype_name` (FDR < $`r qval_cutoff`$). 
+Among `r n_pred_idps` IDPs (`r sum(xcandf$modality=="T1")` T1 and `r sum(xcandf$modality=="dMRI")` diffusion MRI, including the subtype-specific PCs), `r sum(xcandf$fdr < fdr_cutoff)` were significantly associated with `r phenotype_name` (FDR < $`r fdr_cutoff`$). 
 
  
 ```{r, vis_t1, fig.height=7, fig.width=8}
@@ -174,7 +189,7 @@ if(!is.null(df_mr)) {
 The top `r ntop` associations for dMRI are 
 ```{r dmri_top_n, results='asis'}
 if(!is.null(df_mr)) {
-  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, qvalue, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(qvalue < qval_cutoff) %>% filter(modality == "dMRI") %>% arrange(qvalue) %>% select(-modality) %>% head(ntop) %>% pander
+  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, fdr, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(fdr < fdr_cutoff) %>% filter(modality == "dMRI") %>% arrange(fdr) %>% select(-modality) %>% head(ntop) %>% pander
 } else {
   cat('not shown since no significant IDP being identified (pass p-value cutoff).\n\n')
 }
@@ -183,7 +198,7 @@ if(!is.null(df_mr)) {
 The top `r ntop` associations for T1 are 
 ```{r t1_top_n, results='asis'}
 if(!is.null(df_mr)) {
-  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, qvalue, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(qvalue < qval_cutoff) %>% filter(modality == "T1") %>% arrange(qvalue) %>% select(-modality) %>% head(ntop) %>% pander
+  xcandf_w_mr %>% select(IDP, modality, subtype, region, side, zscore, fdr, `IDP -> Phenotype`, `Phenotype -> IDP`, link) %>% filter(fdr < fdr_cutoff) %>% filter(modality == "T1") %>% arrange(fdr) %>% select(-modality) %>% head(ntop) %>% pander
 } else {
   cat('not shown since no significant IDP being identified (pass p-value cutoff).\n\n')
 }

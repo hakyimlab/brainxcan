@@ -20,6 +20,7 @@ bxcan_vis_datadir = fill_bxcan_vis_datadir(config)
 bxcan_idp_meta, bxcan_color_code = fill_bxcan_report_data(config)
 args_bxcan_region_vis = fill_bxcan_region_vis(config)
 args_bxcan_null_t1, args_bxcan_null_dmri =  fill_bxcan_null_args(config)
+args_merge_bxcan_vc = fill_merge_bxcan_vcz_args(config)
 args_col_meta_sbxcan, args_col_meta_mr = fill_gwas_col_meta(config)
 fill_pval_col(config)
 fill_correction_factor(config)
@@ -103,6 +104,7 @@ rule sbxcan_merge:
            --pval_col {config[pval_col]} \
            --correction_factor_emp {config[correction_factor_emp]} \
            --correction_factor_perm {config[correction_factor_perm]} \
+           {args_merge_bxcan_vc} \
            --output_prefix {params[0]} > {log} 2>&1'
 
 checkpoint sbxcan_signif:
@@ -208,6 +210,7 @@ rule sbxcan_report:
            --phenotype_name {wildcards.prefix} \
            --ntop {signif_max_idps} \
            --bxcan_pval_col {config[pval_col]} \
+           --fdr_cutoff {config[fdr_cutoff]} \
            --output_html {output[0]} > {log} 2>&1'
         
 

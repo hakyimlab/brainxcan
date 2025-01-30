@@ -15,6 +15,10 @@ non_effect_allele: 'column name of GWAS non-effect allele'
 chr: 'column name of chromosome'
 position: 'column name of position'  # required if using LD block permutation
 
+# additional flags needed for variance control correction
+pheno_h2: 'heritability of the GWAS trait' 
+gwas_n: 'GWAS sample size'
+
 # option 1 (high priority)
 # Note: we assume effect is centered around zero, so use log(OR) for case control study
 effect_size: 'column name of GWAS effect size'
@@ -46,7 +50,8 @@ idp_type: 'residual'
 # CV Spearman cutoff on models (only models passing this criteria will be shown)
 spearman_cutoff: 0.1 
 
-# parameters to define signif BrainXcan results for MR
+# parameters to define signif BrainXcan results for MR - FDR cutoff will overwrite pval cutoff
+fdr_cutoff: 0.05
 signif_pval: 5e-2
 signif_max_idps: 10
 
@@ -57,6 +62,11 @@ ld_clump_yaml: '{datadir}/mr/ld_clump.yaml'
 rscript_exe: 'Rscript' 
 python_exe: 'python'
 plink_exe: 'plink'
+
+# generate variance control corrected zscores
+# set file for phi values at bxcan_vc_phi
+bxcan_vc_z: False
+bxcan_vc_phi: null 
 
 # generate empirical zscores with simulated weights in BrainXcan
 bxcan_empirical_z: False

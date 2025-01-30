@@ -49,6 +49,15 @@ if __name__ == '__main__':
     parser.add_argument('--correction_factor_perm', type=float, default=1.1, help='''
         Correction factor for to be applied to z-score adjustment (perm_null): z_adj = z / sd(z_null) / correction_factor
     ''')
+    parser.add_argument('--gwas_n', default=None, type=float, help='''
+        GWAS sample size for variance control.
+    ''')
+    parser.add_argument('--pheno_h2', default=None, type=float, help='''
+        Heritability of GWAS phenotype for variance control.
+    ''')
+    parser.add_argument('--vc_phi', default=None, help='''
+        Phi value of IDPs for variance control.
+    ''')
     args = parser.parse_args()
     
     import logging, time, sys, os
@@ -62,7 +71,7 @@ if __name__ == '__main__':
     import pandas as pd
     import numpy as np
     from brainxcan.sbxcan.util.misc import z2p
-    from brainxcan.sbxcan.run_sbrainxcan import genomic_control
+    from brainxcan.sbxcan.run_sbrainxcan import genomic_control, variance_control
     
     df_null = []
     df_perm = []
@@ -86,6 +95,14 @@ if __name__ == '__main__':
     df['z_adj_gc'], lambda_gc = genomic_control(df.z_brainxcan)
     df['pval_adj_gc'] = z2p(df.z_adj_gc)
     logging.info(f'GC lambda = {lambda_gc}.')
+    
+    if args.gwas_n is not None and args.vc_phi is not None and args.pheno_h2:
+        logging.info('Generating adjusted BrainXcan z-score using variance control.')
+        df_phi = pd.read_table(args.vc_phi, sep='\t')
+        df = pd.merge(df, df_phi[['IDP', 'phi']], on='IDP', how='left')
+        df['z_adj_vc'], df['varz_vc'] = variance_control(df.z_brainxcan, df.phi, args.gwas_n, args.pheno_h2)
+        df['pval_adj_vc'] = z2p(df.z_adj_vc)
+        df.drop(columns=['phi'])
     
     add_null_to_result(df, df_null, 'emp_null', args.output_prefix, args.correction_factor_emp)
     add_null_to_result(df, df_perm, 'perm_null', args.output_prefix, args.correction_factor_perm)

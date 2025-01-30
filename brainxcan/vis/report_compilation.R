@@ -27,6 +27,9 @@ option_list <- list(
                 metavar="character"),
     make_option(c("-k", "--bxcan_pval_col"), type="character", default=NULL,
                 help="The name of the p-value column to be used in BrainXcan results.",
+                metavar="character"),
+    make_option(c("--fdr_cutoff"), type="numeric", default=NULL,
+                help="FDR cutoff to call significant",
                 metavar="character")
 )
 
@@ -39,14 +42,17 @@ params = list(
   rlib = opt$rlib,
   phenotype_name = opt$phenotype_name,
   ntop = opt$ntop,
-  bxcan_pval_col = opt$bxcan_pval_col
+  bxcan_pval_col = opt$bxcan_pval_col,
+  fdr_cutoff = opt$fdr_cutoff
 )
 
+rmd_file <- paste0(tools::file_path_sans_ext(opt$output_html), '.Rmd')
+system(paste('cp', opt$rmd_template, rmd_file))
+
 rmarkdown::render(
-  opt$rmd_template, 
+  rmd_file, 
   params = params, 
   envir = new.env(),
   output_dir = dirname(opt$output_html),
-  output_file = basename(opt$output_html),
-  knit_root_dir = dirname(opt$output_html)
+  output_file = basename(opt$output_html)
 )
